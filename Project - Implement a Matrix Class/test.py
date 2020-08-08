@@ -50,7 +50,6 @@ def test():
 		[1,0]
 		])
 
-
 	assert equal(-I2, I2_neg)
 	assert equal(I2 + I2_neg, zero)
 	assert equal(m1 * m2, m1_x_m2)
@@ -60,13 +59,15 @@ def test():
 	assert equal(top_ones.T(), left_ones)
 	assert equal(left_ones.T(), top_ones)
 	assert equal(top_ones - left_ones.T(), m.zeroes(2,2))
-	assert (4*m.identity(5)).trace() == 20 
+	assert (4*m.identity(5)).trace() == 20
 
-	print "Congratulations! All tests pass. Your Matrix class is working as expected."
+	print("Congratulations! All tests pass. Your Matrix class is working as expected.")
 
 def equal(m1, m2):
-	if len(m1.g) != len(m2.g): return False
-	if len(m1.g[0]) != len(m2.g[0]): return False
+	if len(m1.g) != len(m2.g):
+		return False
+	if len(m1.g[0]) != len(m2.g[0]):
+		return False
 	for r1, r2 in zip(m1.g, m2.g):
 		for v1, v2 in zip(r1, r2):
 			if abs(v1 - v2) > 0.0001:
