@@ -35,4 +35,4 @@ def move(p, U):
 
 p = move(sense(move(sense(p,'red'),1),'green'), 1)
 
-print p         
+print(p)
