@@ -1,15 +1,3 @@
-/**
-	helpers.cpp
-
-	Purpose: helper functions which are useful when
-	implementing a 2-dimensional histogram filter.
-
-	This file is incomplete! Your job is to make the
-	normalize and blur functions work. Feel free to 
-	look at helper.py for working implementations 
-	which are written in python.
-*/
-
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -19,66 +7,98 @@
 
 using namespace std;
 
-/**
-	TODO - implement this function
-
-    Normalizes a grid of numbers. 
-
-    @param grid - a two dimensional grid (vector of vectors of floats)
-		   where each entry represents the unnormalized probability 
-		   associated with that grid cell.
-
-    @return - a new normalized two dimensional grid where the sum of 
-    	   all probabilities is equal to one.
-*/
-vector< vector<float> > normalize(vector< vector <float> > grid) {
-	
-	vector< vector<float> > newGrid;
-
-	// todo - your code here
-
-	return newGrid;
+float calculate_total(vector< vector <float> > grid){
+    //Function for calculating the total sum of the probability grid
+    float total = 0.0;
+    for(int i=0; i<grid.size(); i++){
+        for(int j=0; j<grid[0].size(); j++){
+            total = total + grid[i][j];
+        }
+    }
+    return total;
 }
 
-/**
-	TODO - implement this function.
+vector< vector<float> > normalize(vector< vector <float> > grid) {
 
-    Blurs (and normalizes) a grid of probabilities by spreading 
-    probability from each cell over a 3x3 "window" of cells. This 
-    function assumes a cyclic world where probability "spills 
-    over" from the right edge to the left and bottom to top. 
+        /*Given a grid of un-normalized probabilities, computes the
+        correspond normalized version of that grid.*/
 
-    EXAMPLE - After blurring (with blurring=0.12) a localized 
-    distribution like this:
+        float total = calculate_total(grid);
 
-    0.00  0.00  0.00 
-    0.00  1.00  0.00
-    0.00  0.00  0.00 
+	    for(int i=0; i<grid.size(); i++){
+	        for(int j=0; j<grid.size(); j++){
+	            grid[i][j] = grid[i][j]/total;
+	        }
+	    }
+	    return grid;
+}
 
-    would look like this:
-	
-	0.01  0.02	0.01
-	0.02  0.88	0.02
-	0.01  0.02  0.01
+vector < vector <float> > initialize_grid(vector<float>::size_type rows,
+                                          vector<float>::size_type columns){
+    //Creating the initial grid with 0s
+    vector < vector <float> > initial_grid(rows, vector<float> (columns, 0));
+    return initial_grid;
+}
 
-    @param grid - a two dimensional grid (vector of vectors of floats)
-		   where each entry represents the unnormalized probability 
-		   associated with that grid cell.
+vector < vector <float> > create_window(float center_prob, float corner_prob, float adjacent_prob){
+    /*Creating a 3x3 blur window*/
+    vector < vector <float> > window;
+    vector<float> single_row;
 
-	@param blurring - a floating point number between 0.0 and 1.0 
-		   which represents how much probability from one cell 
-		   "spills over" to it's neighbors. If it's 0.0, then no
-		   blurring occurs. 
+    single_row.push_back(corner_prob);
+    single_row.push_back(adjacent_prob);
+    single_row.push_back(corner_prob);
+    window.push_back(single_row);
+    single_row.clear();
 
-    @return - a new normalized two dimensional grid where probability 
-    	   has been blurred.
-*/
+    single_row.push_back(adjacent_prob);
+    single_row.push_back(center_prob);
+    single_row.push_back(adjacent_prob);
+
+    window.push_back(single_row);
+    single_row.clear();
+
+    single_row.push_back(corner_prob);
+    single_row.push_back(adjacent_prob);
+    single_row.push_back(corner_prob);
+
+    window.push_back(single_row);
+    single_row.clear();
+
+    return window;
+}
+
+
+
 vector < vector <float> > blur(vector < vector < float> > grid, float blurring) {
 
-	vector < vector <float> > newGrid;
-	
-	// your code here
+    /*Spreads probability out on a grid using a 3x3 blurring window.
+    The blurring parameter controls how much of a belief spills out
+    into adjacent cells. If blurring is 0 this function will have
+    no effect.*/
 
+	vector<float>::size_type height = grid.size();
+	vector<float>::size_type width = grid[0].size();
+
+    vector < vector <float> > newGrid = initialize_grid(height, width);
+
+    float center_prob = 1.0 - blurring;
+    float corner_prob = blurring/12.0;
+    float adjacent_prob = blurring/6.0;
+
+    vector< vector<float> > window = create_window(center_prob, corner_prob, adjacent_prob);
+
+    for(int i=0; i<height; i++){
+        for(int j=0; j<width; j++){
+            for(int dx=-1; dx< 2; dx++){
+                for(int dy=-1; dy<2; dy++){
+                    int new_i = (i + dy) % height;
+                    int new_j = (j + dx) % width;
+                    newGrid[new_i][new_j] += window[dx+1][dy+1] * grid[i][j];
+                }
+            }
+        }
+    }
 	return normalize(newGrid);
 }
 

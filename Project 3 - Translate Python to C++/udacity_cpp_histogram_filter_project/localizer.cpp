@@ -18,8 +18,6 @@
 using namespace std;
 
 /**
-	TODO - implement this function 
-    
     Initializes a grid of beliefs to a uniform distribution. 
 
     @param grid - a two dimensional grid map (vector of vectors 
@@ -39,16 +37,28 @@ using namespace std;
            0.25 0.25
 */
 vector< vector <float> > initialize_beliefs(vector< vector <char> > grid) {
-	vector< vector <float> > newGrid;
 
-	// your code here
-	
-	return newGrid;
+    vector<float>::size_type height = grid.size();
+    vector<float>::size_type width = grid[0].size();
+
+    float area = height * width;
+
+    float belief_per_cell = 1.0 / area;
+
+    vector< vector <float> > beliefs;
+    vector<float> belief_row;
+
+    for(int i=0; i<height; i++){
+        belief_row.clear();
+        for(int j=0; j<width; j++){
+            belief_row.push_back(belief_per_cell);
+        }
+        beliefs.push_back(belief_row);
+    }
+    return beliefs;
 }
 
 /**
-	TODO - implement this function 
-    
     Implements robot sensing by updating beliefs based on the 
     color of a sensor measurement 
 
@@ -83,23 +93,34 @@ vector< vector <float> > initialize_beliefs(vector< vector <char> > grid) {
     @return - a normalized two dimensional grid of floats 
     	   representing the updated beliefs for the robot. 
 */
-vector< vector <float> > sense(char color, 
-	vector< vector <char> > grid, 
-	vector< vector <float> > beliefs, 
-	float p_hit,
-	float p_miss) 
-{
-	vector< vector <float> > newGrid;
+vector< vector <float> > sense(char color,
+                               vector< vector <char> > grid,
+                               vector< vector <float> > beliefs,
+                               float p_hit,
+                               float p_miss){
 
-	// your code here
+	vector< vector <float> > new_beliefs;
+	vector<float> new_belief_row;
+    float p;
 
-	return normalize(newGrid);
+	for(int i=0; i<grid.size(); i++){
+        new_belief_row.clear();
+	    for(int j=0; j<grid[0].size(); j++){
+            if(grid[i][j] == color){
+                p = beliefs[i][j] * p_hit;
+            }
+            else{
+                p = beliefs[i][j] * p_miss;
+            }
+            new_belief_row.push_back(p);
+	    }
+	    new_beliefs.push_back(new_belief_row);
+	}
+	return normalize(new_beliefs);
 }
 
 
 /**
-	TODO - implement this function 
-    
     Implements robot motion by updating beliefs based on the 
     intended dx and dy of the robot. 
 
@@ -134,14 +155,22 @@ vector< vector <float> > sense(char color,
     @return - a normalized two dimensional grid of floats 
     	   representing the updated beliefs for the robot. 
 */
-vector< vector <float> > move(int dy, int dx, 
-	vector < vector <float> > beliefs,
-	float blurring) 
-{
+vector< vector <float> > move(int dy,
+                              int dx,
+                              vector < vector <float> > beliefs,
+                              float blurring){
 
-	vector < vector <float> > newGrid;
+    vector<float>::size_type height = beliefs.size();
+    vector<float>::size_type width = beliefs[0].size();
 
-	// your code here
+	vector < vector <float> > newGrid = initialize_grid(height, width);
 
+	for(int i=0; i<height; i++){
+	    for(int j=0; j<width; j++){
+            int new_i = (i + dy ) % width;
+            int new_j = (j + dx ) % height;
+            newGrid[int(new_i)][int(new_j)] = beliefs[i][j];
+	    }
+	}
 	return blur(newGrid, blurring);
 }

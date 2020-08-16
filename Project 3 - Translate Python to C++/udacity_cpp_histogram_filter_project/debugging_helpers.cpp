@@ -6,6 +6,9 @@
 */
 
 #include <vector>
+#include <iostream>
+//#include "helpers.cpp"
+
 using namespace std;
 
 /**
@@ -49,4 +52,10 @@ void show_grid(vector < vector <char> > map) {
 		cout << endl;
 	}
 }
+
+// int main() {
+// 	vector < vector < char > > map = read_map("maps/m1.txt");
+// 	show_grid(map);
+// 	return 0;
+// }
 
