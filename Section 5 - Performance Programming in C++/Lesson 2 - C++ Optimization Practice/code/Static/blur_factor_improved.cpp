@@ -19,4 +19,3 @@ vector < vector <float> > blur_factor_improved() {
 
     return window;
 }
-
