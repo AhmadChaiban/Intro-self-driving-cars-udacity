@@ -90,10 +90,7 @@ def is_open_empty(self):
 def get_current_node(self):
     """ Returns the node in the open set with the lowest value of f(node)."""
     #  Return the node in the open set with the lowest value of f(node).
-    dict_of_f_scores = {}
-    for node in self.openSet:
-        dict_of_f_scores[node] = self.calculate_fscore(node)
-    return min(dict_of_f_scores, key = dict_of_f_scores.get)
+    return min(self.openSet, key = self.calculate_fscore)
 
 def get_neighbors(self, node):
     """Returns the neighbors of a node"""
